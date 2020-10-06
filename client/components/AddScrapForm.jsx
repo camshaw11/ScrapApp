@@ -1,10 +1,10 @@
 import React from "react"
 import { connect } from "react-redux";
-
+import FormGeocode from './FormGeocode'
 import { apiAddScraps, apiGetScraps } from "../apis/scrap.js";
-import { getAllScraps, initScrap } from "../actions/scraps"
+import { getAllScraps } from "../actions/scraps"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faImage, faDrumstickBite, faCouch, faTshirt, faDumpsterFire, faShoePrints, faBowlingBall } from '@fortawesome/free-solid-svg-icons'
+import { faDrumstickBite, faCouch, faTshirt, faArchive } from '@fortawesome/free-solid-svg-icons'
 
 
 class AddScrapForm extends React.Component {
@@ -13,6 +13,7 @@ class AddScrapForm extends React.Component {
         address: '',
         scrap_name: '',
         description: '',
+        geoInputLoaded: true
     }
 
     componentDidMount() {
@@ -28,20 +29,31 @@ class AddScrapForm extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault()
         const scrap = this.state
-        console.log(scrap)
-        scrap.longitude=this.props.longitude
-        scrap.latitude=this.props.latitude
+        scrap.longitude = this.props.longitude
+        scrap.latitude = this.props.latitude
+        scrap.address = this.props.address
         apiAddScraps(scrap)
             .then(scrap => {
                 apiGetScraps()
-                .then(scraps => {
-                this.props.dispatch(getAllScraps(scraps));
-                })
-                this.props.history.push('/')
+                    .then(scraps => {
+                        this.props.dispatch(getAllScraps(scraps));
+                    })
+            })
+        this.setState({
+            category: '',
+            address: '',
+            scrap_name: '',
+            description: '',
+            geoInputLoaded: false
+        }, () => {
+            this.setState({
+                geoInputLoaded: true
+            })
         })
     }
 
     render() {
+
         return (
             <>
                 <div className="form-container">
@@ -50,36 +62,28 @@ class AddScrapForm extends React.Component {
                         <div className="field">
                             <label className="label">Category</label>
                             <div className="control radio-group">
-                                <input type="radio" name="category" onChange={this.handleChange} value="food" id="food" />
+                                <input type="radio" name="category" onChange={this.handleChange} value="Food" id="food" checked={this.state.category === "Food"} />
                                 <label htmlFor="food">
-                                    <FontAwesomeIcon icon={faDrumstickBite} size="2x" className="nav-icon" />
+                                    <FontAwesomeIcon icon={faDrumstickBite} size="2x" className="nav-icon food-icon" />
                                 </label>
-                                <input type="radio" name="category" onChange={this.handleChange} value="furniture" id="furniture" />
+                                <input type="radio" name="category" onChange={this.handleChange} value="Furniture" id="furniture" checked={this.state.category === "Furniture"} />
                                 <label htmlFor="furniture">
-                                    <FontAwesomeIcon icon={faCouch} size="2x" className="nav-icon" />
+                                    <FontAwesomeIcon icon={faCouch} size="2x" className="nav-icon furniture-icon" />
                                 </label>
-                                <input type="radio" name="category" onChange={this.handleChange} value="clothes" id="clothes" />
+                                <input type="radio" name="category" onChange={this.handleChange} value="Clothes" id="clothes" checked={this.state.category === "Clothes"} />
                                 <label htmlFor="clothes">
-                                    <FontAwesomeIcon icon={faTshirt} size="2x" className="nav-icon" />
+                                    <FontAwesomeIcon icon={faTshirt} size="2x" className="nav-icon clothes-icon" />
                                 </label>
-                                <input type="radio" name="category" onChange={this.handleChange} value="stuff" id="stuff" />
+                                <input type="radio" name="category" onChange={this.handleChange} value="Stuff" id="stuff" checked={this.state.category === "Stuff"} />
                                 <label htmlFor="stuff">
-                                    <FontAwesomeIcon icon={faDumpsterFire} size="2x" className="nav-icon" />
-                                </label>
-                                <input type="radio" name="category" onChange={this.handleChange} value="shoes" id="shoes" />
-                                <label htmlFor="shoes">
-                                    <FontAwesomeIcon icon={faShoePrints} size="2x" className="nav-icon" />
-                                </label>
-                                <input type="radio" name="category" onChange={this.handleChange} value="balls" id="balls" />
-                                <label htmlFor="balls">
-                                    <FontAwesomeIcon icon={faBowlingBall} size="2x" className="nav-icon" />
+                                    <FontAwesomeIcon icon={faArchive} size="2x" className="nav-icon stuff-icon" />
                                 </label>
                             </div>
                         </div>
                         <div className="field">
                             <label className="label">Location</label>
                             <div className="control">
-                                <input required className="input" type="text" placeholder="Location" value={this.state.address} name="address" onChange={this.handleChange} />
+                                {this.state.geoInputLoaded && <FormGeocode />}
                             </div>
                         </div>
                         <div className="field">
@@ -94,17 +98,19 @@ class AddScrapForm extends React.Component {
                                 <textarea required className="textarea" placeholder="Add a description.." value={this.state.description} name="description" onChange={this.handleChange}></textarea>
                             </div>
                         </div>
-                        <input className="button is-large" value='Add' type="submit" />
-                        
-                </form>
-                </div>
+                        <input className="button is-medium" value='Add' type="submit" onClick={this.props.closeMenu} />
+                        <button type="button" onClick={this.props.closeMenu} className='logoutButton button is-medium'>Close</button>
+                    </form>
+
+
+                </div >
             </>
         )
     }
 }
 
 function mapStateToProps(globalState) {
-    return { latitude: globalState.newScrap.lat, longitude: globalState.newScrap.long }
+    return { latitude: globalState.newScrap.lat, longitude: globalState.newScrap.long, address: globalState.newScrap.address }
 }
 
 export default connect(mapStateToProps)(AddScrapForm);
