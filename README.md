@@ -6,6 +6,8 @@ ScrapApp, it's for you and me.
 
 ScrapApp provides a second home for your unwanted scrap. Furniture, clothes, food and other wears can be given another chance. ScrapApp utilises a map API to pin the location of discarded goods for users to pick up.
 
+
+View the live site here: https://the-scrap-app.herokuapp.com/#/
 ## The Tech
 
 * [Mapbox](https://www.mapbox.com/)
